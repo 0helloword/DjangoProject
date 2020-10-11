@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登陆</title>
+</head>
+<body>
+<p><span><a href="{% url 'blog:login' %}">密码登陆</a></span> | <span><a href="{% url 'blog:codelogin' %}">验证码登陆</a></span></p>
+<form action="{% url 'blog:login' %}" method="post">
+    {% csrf_token %}
+    {{ lform.as_p }}{# 以p标签的方式显示元素#}
+    <p>{{ msg }}</p>
+    <input type="submit" value="登陆">
+    <p><a href="{% url 'blog:forgetpwd' %}">忘记密码</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url 'blog:register' %}">注册</a></p>
+</form>
+
+</body>
+</html>

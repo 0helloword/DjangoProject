@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+<h3>
+    <a href="{% url 'blog:index' %}">首页</a>
+    <a href="{% url 'blog:write' %}">写博客</a>
+    <a href="{% url 'blog:mine' %}">个人中心</a>
+    <a href="{% url 'blog:message' %}">留言</a>
+</h3>
+{#方法1：通用方法，使用session获取用户#}
+{#{% if request.session.username %}#}
+{#    <p>欢迎您，{{ request.session.username }}</p>#}
+{#方法2：#}
+{% if request.user.is_authenticated %}
+    <p>欢迎您，{{ request.user.username }} &nbsp;&nbsp;&nbsp;<a href="{% url 'blog:logout' %}">退出登陆</a></p>
+{% else %}
+    <a href="{% url 'blog:login' %}">登陆</a>
+    <a href="{% url 'blog:register' %}">注册</a>
+{% endif %}
+<div class="tag">
+    {% for tag in tags %}
+        <a href="{% url 'blog:index' %}?tagid={{ tag.id }}">{{ tag.name }}</a>
+    {% endfor %}
+
+</div>
+<div>
+    {% for  article in page %}
+        <p>{{ article.title }}</p>
+        <p>{{ article.decs }}</p>
+        <p><a class="articledetail" id={{ article.id }} href="{% url 'blog:detail' %}?id={{ article.id }}">阅读全文</a></p>
+    {% endfor %}
+{#实现分页器#}
+    <div class="page">
+        <a href="{% url 'blog:index' %}?page=
+{% if page.has_previous %}{{ page.previous_page_number }}{% else %}1{% endif %}&tagid={{ tagid }}">&lt;</a>
+        {% for page_num in page.paginator.page_range %}
+            {% if page.number == page_num %} {# 如果当前页=分页器中的页数 #}
+                <b>{{ page.number }}</b>
+            {% else %}
+                <a href="{% url 'blog:index' %}?page={{ page_num }}&tagid={{ tagid }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        <a href="{% url 'blog:index' %}?page=
+{% if page.has_next %}{{ page.next_page_number }}{% else %}{{ page.paginator.num_pages }}{% endif %}&tagid={{ tagid }}">&gt;</a>
+    </div>
+</div>
+<!--{#<script type="text/javascript" src="{% static 'jquery.js' %}"></script>#}-->
+<!--{#<script type="text/javascript">#}-->
+<!--{#    $(function () {#}-->
+<!--{#        $(".articledetail").click(function () {#}-->
+<!--{#            console.log('11');#}-->
+<!--{#            var $articledetail=$(this);#}-->
+<!--{#            var article_id=$articledetail.attr("id");#}-->
+<!--{#            console.log(article_id);#}-->
+<!--{#            window.open('/blog/detail/?id='+article_id,target="_self")#}-->
+<!--{#        })#}-->
+<!--{#    })#}-->
+<!--{#</script>#}-->
+
+</body>
+</html>

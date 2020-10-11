@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>写博客</title>
+</head>
+<body>
+<div>
+    <h3>
+    <a href="{% url 'blog:index' %}">首页</a>
+    <a href="{% url 'blog:write' %}">写博客</a>
+    <a href="{% url 'blog:mine' %}">个人中心</a>
+    <a href="{% url 'blog:message' %}">留言</a>
+</h3>
+{% if request.user.is_authenticated %}
+    <span>欢迎您，{{ request.user.username }} &nbsp;&nbsp;&nbsp;<a href="{% url 'blog:logout' %}">退出登陆</a></span>
+{% else %}
+    <a href="{% url 'blog:login' %}">登陆</a>
+    <a href="{% url 'blog:register' %}">注册</a>
+{% endif %}
+</div>
+
+<form action="{% url 'blog:write' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ aform.media }}
+    {{ aform.as_p }}
+    <input type="submit">
+</form>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>忘记密码</title>
+</head>
+<body>
+<form action="{% url 'blog:forgetpwd' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}{# 以p标签的方式显示元素#}
+    <p>{{ msg }}</p>
+    <input type="submit" value="找回密码">
+
+</form>
+<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+<script>
+    $(function(){
+        //刷新动作
+        $(".captcha").click(function(){
+            var img=$(this);
+            //点击则切换验证码图片
+            $.getJSON('/captcha/refresh',function (data) {
+                console.log(data);
+                img.attr('src',data['image_url']);
+                $('#id_captcha_0').val(data['key'])
+            })
+        })
+        //验证验证码是否正确 当失去焦点(blur)时触发
+        $("#id_captcha_1").blur(function () {
+            var $this=$(this);
+            var key=$('#id_captcha_0').attr('value');//获取图像验证码的value属性值，如：c72b3fc6d4d797275382da4890719b643d1afa4c
+            var code=$(this).val();//获取用户输入的验证码值
+            $.getJSON('{% url 'blog:validecode' %}',{key,code},function (data) {//将用户输入的验证码与图像验证码的属性值发送到后端进行校验
+                console.log(data);
+                $("#result").remove();//清空标签的内容
+                if(data.status==1){
+                    $this.after("<span id='result'>验证码正确</span>")
+                }
+                else{
+                     $this.after("<span id='result'>验证码错误</span>")
+                }
+            })
+        })
+    })
+
+</script>
+</body>
+</html>

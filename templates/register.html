@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+
+</head>
+<body>
+<form action="{% url 'blog:register' %}" method="post">
+    {% csrf_token %}
+    {{ rform.as_p }}{# 以p标签的方式显示元素#}
+    <p>{{ msg }}</p>
+    <input type="submit" value="注册">
+</form>
+</body>
+</html>

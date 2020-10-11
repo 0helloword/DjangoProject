@@ -1,0 +1,13 @@
+form>p>i>img{
+     width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+}
+
+div>ul>li>span>img{
+         width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+    line-height: 1.8rem;
+     margin: 0 0.3rem 0;
+}

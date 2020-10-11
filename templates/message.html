@@ -1,0 +1,98 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>留言</title>
+    <link rel="stylesheet" href="{% static 'css/message.css' %}">
+</head>
+<body>
+<h3>
+    <a href="{% url 'blog:index' %}">首页</a>
+    <a href="{% url 'blog:write' %}">写博客</a>
+    <a href="{% url 'blog:mine' %}">个人中心</a>
+    <a href="{% url 'blog:message' %}">留言</a>
+</h3>
+{#方法1：通用方法，使用session获取用户#}
+{#{% if request.session.username %}#}
+{#    <p>欢迎您，{{ request.session.username }}</p>#}
+{#方法2：#}
+{% if request.user.is_authenticated %}
+    <p>欢迎您，{{ request.user.username }} &nbsp;&nbsp;&nbsp;<a href="{% url 'blog:logout' %}">退出登陆</a></p>
+{% else %}
+    <a href="{% url 'blog:login' %}">登陆</a>
+    <a href="{% url 'blog:register' %}">注册</a>
+{% endif %}
+{#实现分页器#}
+<div>
+       {% for  msg in page.object_list %}
+<ul>
+    <li>
+        <span><img src="{{ msg.icon }}"></span>&nbsp;&nbsp;&nbsp;<span>{{ msg.nickname }}</span>&nbsp;&nbsp;&nbsp;<span>{{ msg.date }}</span>&nbsp;&nbsp;&nbsp;<span>{{ msg.content }}</span>
+        <hr>
+    </li>
+</ul>
+    {% endfor %}
+</div>
+    <div class="page">
+        <a href="{% url 'blog:message' %}?page=
+{% if page.has_previous %}{{ page.previous_page_number }}{% else %}1{% endif %}">&lt;</a>
+        {% for page_num in page.paginator.page_range %}
+            {% if page.number == page_num %} {# 如果当前页=分页器中的页数 #}
+                <b>{{ page.number }}</b>
+            {% else %}
+                <a href="{% url 'blog:message' %}?page={{ page_num }}">{{ page_num }}</a>
+            {% endif %}
+        {% endfor %}
+        <a href="{% url 'blog:message' %}?page=
+{% if page.has_next %}{{ page.next_page_number }}{% else %}{{ page.paginator.num_pages }}{% endif %}">&gt;</a>
+    </div>
+</div>
+
+
+</div>
+<p>来说点什么吧</p>
+<form action="{% url 'blog:message' %}" method="post">
+    {% csrf_token %}
+    <p>你的昵称：<input type="text" name="nickname"></p>
+    <p>选择头像：
+        <i><input type="radio" value="{% static 'img/1.jpg' %}" id="1" name="mycall" style="display: none">
+            <img id="a" src="{% static 'img/1.jpg' %}" onclick="myFun(this.id)"></i>
+        <i><input type="radio" value="{% static 'img/2.jpg' %}" id="2" name="mycall" style="display: none">
+            <img id="b" src="{% static 'img/2.jpg' %}" onclick="myFun(this.id)"></i>
+        <i><input type="radio" value="{% static 'img/3.jpg' %}" id="3" name="mycall" style="display: none">
+            <img id="c" src="{% static 'img/3.jpg' %}" onclick="myFun(this.id)"></i>
+        <i><input type="radio" value="{% static 'img/4.jpg' %}" id="4" name="mycall" style="display: none">
+            <img id="d" src="{% static 'img/4.jpg' %}" onclick="myFun(this.id)"></i>
+        <i><input type="radio" value="{% static 'img/5.jpg' %}" id="5" name="mycall" style="display: none">
+            <img id="e" src="{% static 'img/5.jpg' %}" onclick="myFun(this.id)"></i>
+        <i><input type="radio" value="{% static 'img/6.jpg' %}" id="6" name="mycall" style="display: none">
+            <img id="f" src="{% static 'img/6.jpg' %}" onclick="myFun(this.id)"></i>
+    </p>
+<p>
+    <span class="message">留言内容：</span>
+    <textarea name="lytext" id="" cols="50" rows="5" id="text"></textarea>
+</p>
+    <p>
+        <input type="submit" name="submit" value="提交"/>
+    </p>
+
+</form>
+<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+<script>
+    function myFun(sId) {
+        console.log(sId);
+        var oImg=document.getElementsByTagName('img');
+        for (var i=0;i<oImg.length;i++){
+            if (oImg[i].id==sId){
+                oImg[i].previousSibling.previousSibling.checked=true;
+                oImg[i].style.opacity='1';
+            }
+            else{
+                oImg[i].style.opacity='.8';
+            }
+        }
+    }
+</script>
+</body>
+</html>

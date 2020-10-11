@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>验证码登陆</title>
+</head>
+<body>
+<form action="{% url 'blog:codelogin' %}" method="post">
+    {% csrf_token %}
+    <p>
+        手机号码：<input type="text" id="phone" name="phone">&nbsp;&nbsp;<button id="sendmsg" type="button">发送验证码</button>
+    </p>
+    <p>
+        验证码：<input type="text" name='code' placeholder="请输入验证码">
+    </p>
+
+    <p>{{ msg }}</p>
+    <input type="submit" value="登陆">
+    <p><a href="{% url 'blog:forgetpwd' %}">忘记密码</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="{% url 'blog:register' %}">注册</a>
+    </p>
+</form>
+<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+<script type="text/javascript">
+    $(function () {
+        var $sendmsg = $("#sendmsg");
+        $sendmsg.click(function () {
+            var phone = $("#phone").val();
+            console.log(phone);
+            if (phone.length === 11) {
+                $.getJSON('{% url 'blog:sendmsg' %}', {'phone': phone}, function (data) {
+                    console.log(data);
+                    alert(data['msg'])
+                }
+            )
+            } else {
+                alert('请输入正确的手机号码')
+            }
+        })
+    })
+
+
+</script>
+</body>
+</html>

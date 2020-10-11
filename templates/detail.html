@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文章详情</title>
+</head>
+<body>
+<div>
+    <h3>
+    <a href="{% url 'blog:index' %}">首页</a>
+    <a href="{% url 'blog:write' %}">写博客</a>
+    <a href="{% url 'blog:mine' %}">个人中心</a>
+    <a href="{% url 'blog:message' %}">留言</a>
+</h3>
+{% if request.user.is_authenticated %}
+    <span>欢迎您，{{ request.user.username }} &nbsp;&nbsp;&nbsp;<a href="{% url 'blog:logout' %}">退出登陆</a></span>
+{% else %}
+    <a href="{% url 'blog:login' %}">登陆</a>
+    <a href="{% url 'blog:register' %}">注册</a>
+{% endif %}
+</div>
+<div>
+    <p>{{ article.title }}</p>
+    {% for tag in article.tags.all %}
+        <li>{{ tag }}</li>
+    {% endfor %}
+    <p>
+        浏览：{{ article.click_num }}&nbsp;&nbsp;&nbsp;&nbsp;点赞：{{ article.love_num }}&nbsp;&nbsp;&nbsp;作者：{{ article.user.username }}&nbsp;&nbsp;&nbsp;发表日期：{{ article.date }}</p>
+    <p>{{ article.content }}</p>
+</div>
+<div>
+    {#    <p><a href="{% url 'blog:detail' %}?id={{ article.id |add:'-1' }}">上一篇</a></p>#}
+    {#    <p><a href="{% url 'blog:detail' %}?id={{ article.id |add:'1' }}">下一篇</a></p>#}
+    {% if up_id == 0 %}
+        <p><a href="{% url 'blog:detail' %}?id={{ article.id |add:'1' }}">下一篇:{{ down_title }}</a></p>
+    {% elif  down_id == 0 %}
+        <p><a href="{% url 'blog:detail' %}?id={{ article.id |add:'-1' }}">上一篇:{{ up_title }}</a></p>
+    {% else %}
+        <p><a href="{% url 'blog:detail' %}?id={{ up_id }}">上一篇:{{ up_title }}</a></p>
+        <p><a href="{% url 'blog:detail' %}?id={{ down_id }}">下一篇:{{ down_title }}</a></p>
+    {% endif %}
+</div>
+<h2>
+    相关文章
+</h2>
+{% for foo in article_list %}
+    <li>
+        <a href="{% url 'blog:detail' %}?id={{ foo.id }}">{{ foo }}</a>
+    </li>
+{% endfor %}
+<h2>文章评论</h2>
+<hr>
+{% for comment in comments %}
+<ul>
+    <li>
+        <p><span>{{ comment.nickname }}</span>&nbsp;&nbsp;&nbsp;<span>{{ comment.date }}</span></p>
+        <p>{{ comment.content }}</p>
+    </li>
+</ul>
+{% endfor %}
+<div>
+    <p><span>来说两句吧，</span><span>共有评论数：{{ c_count }}条</span></p>
+    <p><span id="result"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span id="vcoptcha"></span></p>
+    昵称：<input type="text" id="nickname">
+    验证码： <input type="text" name="captcha_1" required id="id_captcha_1" autocapitalize="off" autocomplete="off"
+                autocorrect="off" spellcheck="false">
+    <img src="/captcha/image/9dd6f35732cca9630e7e3d254286296acd0aa22c/" alt="captcha" class="captcha"/>
+    <input type="hidden" name="captcha_0" value="" required
+           id="id_captcha_0">
+    评论：<input type="text" id="comment">
+    <button class="submit" id="{{ article.id }}" onsubmit="return check()">提交</button>
+    <br>
+    <br>
+    <br>
+</div>
+<script type="text/javascript" src="{% static 'jquery.js' %}"></script>
+<script type="text/javascript">
+    $(".submit").click(function check() {
+        //判断昵称不能为空
+        var $nickname = $('#nickname');
+        var nickname = $nickname.val().trim();
+        if (!nickname) {
+            $('#result').html('昵称不能为空').css('color', 'red');
+            return false
+        }
+        //判断验证码不能为空
+        var $captcha = $('#id_captcha_1');
+        var captcha = $captcha.val().trim();
+        if (!captcha) {
+            $('#result').html('验证码不能为空').css('color', 'red');
+            {#alert('验证码不能为空');#}
+            return false
+        }
+        //判断评论内容不能为空
+        var $comment = $('#comment');
+        var comment = $comment.val().trim();
+        if (!comment) {
+            $('#result').html('评论内容不能为空').css('color', 'red');
+            {#alert('评论不能为空');#}
+            return false
+        }
+        //判断result和vcoptcha有任意一个提示颜色为红色时不允许提交
+        var result_color = $("#result").css('color');
+        var vcoptcha_color = $("#vcoptcha").css('color');
+        if (result_color == 'rgb(255, 0, 0)' || vcoptcha_color == 'rgb(255, 0, 0)') {//颜色这里中间一定要加空格
+            return false
+        }
+        //提交评论
+        var $submit = $('.submit');
+        article_id = $submit.attr('id');
+        {#var verify = $("#result").val();#}
+        var nickname = $('#nickname').val();
+        var comment = $('#comment').val();
+        console.log(article_id, nickname, comment);
+        $.getJSON('/blog/comment/', {article_id, nickname, comment}, function (data) {
+            console.log(data);
+            if (data['status'] === 200) {
+                alert('提交成功');
+                window.location.reload();//自动刷新页面
+            } else {
+                alert('请重试');
+            }
+        });
+        return true;
+    });
+
+    //点击验证码刷新验证码
+    var $captcha = $('.captcha');
+    $captcha.click(function () {
+        var img = $(this);
+        $.getJSON('/captcha/refresh/', function (data) {
+            console.log(data);
+            img.attr('src', data['image_url']);
+            $('#id_captcha_0').val(data['key']);
+        })
+    });
+
+
+
+
+
+
+    //验证验证码是否正确 当失去焦点(blur)时触发
+    $('#id_captcha_1').blur(function () {
+        var $this = $(this);
+        var key = $('#id_captcha_0').attr('value');//获取图像验证码的value属性值，如：c72b3fc6d4d797275382da4890719b643d1afa4c
+        var code = $('#id_captcha_1').val();//获取用户输入的值
+        $.getJSON('/blog/validecode/', {key, code}, function (data) {//将用户输入的验证码与图像验证码的属性值发送到后端进行校验
+            console.log(data);
+            var $vcoptcha = $("#vcoptcha");
+            if (data.status == 1) {
+                $vcoptcha.html('');//验证码正确
+            } else {
+                $vcoptcha.html('验证码错误').css('color', 'red');
+            }
+        })
+    })
+
+</script>
+</body>
+</html>
