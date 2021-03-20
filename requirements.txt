@@ -60,7 +60,7 @@ ipaddress==1.0.22
 isort==4.3.21
 jdcal==1.4.1
 jieba==0.39
-Jinja2==2.10.3
+Jinja2==2.11.3
 jsonpath==0.82
 jsonpickle==1.2
 kiwisolver==1.2.0
