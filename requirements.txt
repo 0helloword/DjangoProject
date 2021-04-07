@@ -5,7 +5,7 @@ astroid==2.2.5
 attrs==19.1.0
 billiard==3.6.3.0
 blosc==1.9.1
-bottle==0.12.17
+bottle==0.12.19
 celery==4.4.5
 certifi==2019.11.28
 cffi==1.14.0
